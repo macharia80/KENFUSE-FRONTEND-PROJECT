@@ -1,222 +1,302 @@
-import { useState } from 'react'
-import { Target, Users, Calendar, DollarSign, Share2, Heart, TrendingUp } from 'lucide-react'
+import React, { useState } from 'react'
+import { Heart, Target, Users, Calendar, DollarSign, Share2, TrendingUp, Plus, Image as ImageIcon } from 'lucide-react'
+
+interface Fundraiser {
+  id: number
+  title: string
+  description: string
+  goal: number
+  raised: number
+  donors: number
+  daysLeft: number
+  image: string
+}
 
 export default function Fundraiser() {
-  const [campaigns] = useState([
+  const [fundraisers, setFundraisers] = useState<Fundraiser[]>([
     {
       id: 1,
-      title: 'Medical Expenses for John',
-      description: 'Support John\'s cancer treatment journey',
-      raised: 150000,
-      target: 500000,
-      donors: 47,
-      daysLeft: 15,
-      category: 'Medical'
+      title: 'Memorial Hospital Wing',
+      description: 'Building a new wing in memory of loved ones',
+      goal: 5000000,
+      raised: 3250000,
+      donors: 234,
+      daysLeft: 45,
+      image: 'https://images.unsplash.com/photo-1516549655669-df565bc5d4c5?auto=format&fit=crop&w=800'
     },
     {
       id: 2,
-      title: 'School Fees for Mary',
-      description: 'Help Mary continue her university education',
-      raised: 80000,
-      target: 200000,
-      donors: 32,
-      daysLeft: 30,
-      category: 'Education'
+      title: 'Education Scholarship Fund',
+      description: 'Supporting orphans through education',
+      goal: 2000000,
+      raised: 1250000,
+      donors: 189,
+      daysLeft: 60,
+      image: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=800'
     },
     {
       id: 3,
-      title: 'Funeral Expenses',
-      description: 'Support the family with funeral arrangements',
-      raised: 120000,
-      target: 300000,
-      donors: 89,
-      daysLeft: 7,
-      category: 'Memorial'
+      title: 'Community Library Project',
+      description: 'Building a community library in rural area',
+      goal: 3000000,
+      raised: 1500000,
+      donors: 156,
+      daysLeft: 30,
+      image: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=800'
     }
   ])
 
-  const [newCampaign, setNewCampaign] = useState({
+  const [showCreateForm, setShowCreateForm] = useState(false)
+  const [newFundraiser, setNewFundraiser] = useState({
     title: '',
     description: '',
-    targetAmount: '',
-    category: 'Memorial'
+    goal: '',
+    duration: '30'
   })
 
-  const createCampaign = () => {
-    if (!newCampaign.title || !newCampaign.description || !newCampaign.targetAmount) {
-      alert('Please fill all required fields')
-      return
+  const handleCreate = (e: React.FormEvent) => {
+    e.preventDefault()
+    const newFund = {
+      id: fundraisers.length + 1,
+      title: newFundraiser.title,
+      description: newFundraiser.description,
+      goal: parseInt(newFundraiser.goal),
+      raised: 0,
+      donors: 0,
+      daysLeft: parseInt(newFundraiser.duration),
+      image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w-800'
     }
-    alert(`Campaign "${newCampaign.title}" created successfully!`)
-    setNewCampaign({ title: '', description: '', targetAmount: '', category: 'Memorial' })
+    setFundraisers([...fundraisers, newFund])
+    setNewFundraiser({ title: '', description: '', goal: '', duration: '30' })
+    setShowCreateForm(false)
   }
 
-  const categories = ['Memorial', 'Medical', 'Education', 'Emergency', 'Other']
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-KE', {
+      style: 'currency',
+      currency: 'KES',
+      minimumFractionDigits: 0
+    }).format(amount)
+  }
 
   return (
-    <div className="max-w-6xl mx-auto">
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Fundraising Campaigns</h1>
-        <p className="text-gray-600">Support meaningful causes or start your own campaign</p>
+    <div className="p-6">
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h1 className="text-2xl font-bold">Fundraisers</h1>
+          <p className="text-gray-600">Create and manage memorial fundraisers</p>
+        </div>
+        <button
+          onClick={() => setShowCreateForm(true)}
+          className="btn-primary flex items-center gap-2"
+        >
+          <Plus size={20} />
+          Create Fundraiser
+        </button>
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2">
-          <div className="grid md:grid-cols-2 gap-6 mb-8">
-            {campaigns.map((campaign) => {
-              const progress = (campaign.raised / campaign.target) * 100
-              
-              return (
-                <div key={campaign.id} className="bg-white rounded-xl shadow-sm border p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-full">
-                      {campaign.category}
-                    </span>
-                    <span className="text-sm text-gray-500">{campaign.daysLeft} days left</span>
-                  </div>
-                  
-                  <h3 className="text-xl font-semibold mb-2">{campaign.title}</h3>
-                  <p className="text-gray-600 mb-4">{campaign.description}</p>
-                  
-                  <div className="space-y-3">
-                    <div>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span className="text-gray-600">Raised</span>
-                        <span className="font-semibold">KES {campaign.raised.toLocaleString()}</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div 
-                          className="bg-green-600 h-2 rounded-full" 
-                          style={{ width: `${Math.min(progress, 100)}%` }}
-                        ></div>
-                      </div>
-                      <div className="text-right text-sm text-gray-500 mt-1">
-                        of KES {campaign.target.toLocaleString()}
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center justify-between text-sm">
-                      <div className="flex items-center">
-                        <Users className="h-4 w-4 text-gray-400 mr-1" />
-                        <span>{campaign.donors} donors</span>
-                      </div>
-                      <div className="flex space-x-2">
-                        <button className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg">
-                          <Share2 className="h-4 w-4" />
-                        </button>
-                        <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
-                          Donate
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )
-            })}
+      {/* Create Fundraiser Form */}
+      {showCreateForm && (
+        <div className="card mb-8">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-semibold">Create New Fundraiser</h2>
+            <button
+              onClick={() => setShowCreateForm(false)}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              ✕
+            </button>
           </div>
-
-          <div className="bg-white rounded-xl shadow-sm border p-6">
-            <h2 className="text-xl font-semibold mb-6">Active Campaigns Statistics</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="text-center p-4 bg-blue-50 rounded-lg">
-                <DollarSign className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-                <div className="text-2xl font-bold">KES 350K</div>
-                <div className="text-sm text-gray-600">Total Raised</div>
-              </div>
-              <div className="text-center p-4 bg-green-50 rounded-lg">
-                <Users className="h-8 w-8 text-green-600 mx-auto mb-2" />
-                <div className="text-2xl font-bold">168</div>
-                <div className="text-sm text-gray-600">Total Donors</div>
-              </div>
-              <div className="text-center p-4 bg-purple-50 rounded-lg">
-                <TrendingUp className="h-8 w-8 text-purple-600 mx-auto mb-2" />
-                <div className="text-2xl font-bold">12</div>
-                <div className="text-sm text-gray-600">Active Campaigns</div>
-              </div>
-              <div className="text-center p-4 bg-red-50 rounded-lg">
-                <Heart className="h-8 w-8 text-red-600 mx-auto mb-2" />
-                <div className="text-2xl font-bold">95%</div>
-                <div className="text-sm text-gray-600">Success Rate</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="lg:col-span-1">
-          <div className="bg-white rounded-xl shadow-sm border p-6 sticky top-8">
-            <h2 className="text-xl font-semibold mb-6">Start a Campaign</h2>
-            
-            <div className="space-y-4">
-              <div>
+          
+          <form onSubmit={handleCreate} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Campaign Title *
+                  Fundraiser Title *
                 </label>
                 <input
                   type="text"
-                  value={newCampaign.title}
-                  onChange={(e) => setNewCampaign({...newCampaign, title: e.target.value})}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                  placeholder="e.g., Medical Support for..."
+                  className="input-field"
+                  placeholder="e.g., Memorial Scholarship Fund"
+                  value={newFundraiser.title}
+                  onChange={(e) => setNewFundraiser({...newFundraiser, title: e.target.value})}
+                  required
                 />
               </div>
-              
-              <div>
+
+              <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Description *
                 </label>
                 <textarea
-                  value={newCampaign.description}
-                  onChange={(e) => setNewCampaign({...newCampaign, description: e.target.value})}
-                  rows={4}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                  placeholder="Tell your story..."
+                  className="input-field min-h-[120px]"
+                  placeholder="Describe the purpose and goals of this fundraiser..."
+                  value={newFundraiser.description}
+                  onChange={(e) => setNewFundraiser({...newFundraiser, description: e.target.value})}
+                  required
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Category
+                  Goal Amount (KES) *
                 </label>
-                <select
-                  value={newCampaign.category}
-                  onChange={(e) => setNewCampaign({...newCampaign, category: e.target.value})}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                >
-                  {categories.map((cat) => (
-                    <option key={cat} value={cat}>{cat}</option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <DollarSign className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                  <input
+                    type="number"
+                    className="input-field pl-10"
+                    placeholder="5000000"
+                    value={newFundraiser.goal}
+                    onChange={(e) => setNewFundraiser({...newFundraiser, goal: e.target.value})}
+                    required
+                  />
+                </div>
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Target Amount (KES) *
+                  Duration (Days) *
                 </label>
-                <input
-                  type="number"
-                  value={newCampaign.targetAmount}
-                  onChange={(e) => setNewCampaign({...newCampaign, targetAmount: e.target.value})}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                  placeholder="50000"
-                  min="1000"
-                />
+                <div className="relative">
+                  <Calendar className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                  <input
+                    type="number"
+                    className="input-field pl-10"
+                    placeholder="30"
+                    value={newFundraiser.duration}
+                    onChange={(e) => setNewFundraiser({...newFundraiser, duration: e.target.value})}
+                    required
+                  />
+                </div>
               </div>
-              
-              <div className="pt-4">
-                <button
-                  onClick={createCampaign}
-                  className="w-full py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700"
-                >
-                  Start Campaign
-                </button>
-                <p className="text-sm text-gray-500 text-center mt-3">
-                  Campaigns are reviewed within 24 hours
-                </p>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Cover Image
+                </label>
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-500 transition-colors">
+                  <ImageIcon className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                  <p className="text-gray-600">Click to upload or drag and drop</p>
+                  <p className="text-sm text-gray-500">PNG, JPG up to 5MB</p>
+                </div>
               </div>
             </div>
-          </div>
+
+            <div className="flex gap-3">
+              <button type="submit" className="btn-primary flex-1">
+                Create Fundraiser
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowCreateForm(false)}
+                className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
         </div>
+      )}
+
+      {/* Fundraisers Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+        {fundraisers.map((fundraiser) => {
+          const progress = (fundraiser.raised / fundraiser.goal) * 100
+          
+          return (
+            <div key={fundraiser.id} className="card overflow-hidden hover:shadow-xl transition-shadow duration-300">
+              {/* Image */}
+              <div className="h-48 bg-gradient-to-r from-blue-500 to-purple-600 relative">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                <div className="absolute top-4 right-4">
+                  <span className="px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-sm font-medium">
+                    {fundraiser.daysLeft} days left
+                  </span>
+                </div>
+              </div>
+
+              {/* Content */}
+              <div className="p-6">
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    <h3 className="font-bold text-lg mb-2">{fundraiser.title}</h3>
+                    <p className="text-gray-600 text-sm line-clamp-2">{fundraiser.description}</p>
+                  </div>
+                  <Heart className="text-red-500 flex-shrink-0" size={20} />
+                </div>
+
+                {/* Progress Bar */}
+                <div className="mb-4">
+                  <div className="flex justify-between text-sm mb-1">
+                    <span className="text-gray-600">Raised: {formatCurrency(fundraiser.raised)}</span>
+                    <span className="font-medium">{progress.toFixed(1)}%</span>
+                  </div>
+                  <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-gradient-to-r from-green-500 to-green-600 rounded-full"
+                      style={{ width: `${Math.min(progress, 100)}%` }}
+                    ></div>
+                  </div>
+                  <div className="flex justify-between text-xs text-gray-500 mt-1">
+                    <span>Goal: {formatCurrency(fundraiser.goal)}</span>
+                    <span>{fundraiser.donors} donors</span>
+                  </div>
+                </div>
+
+                {/* Stats */}
+                <div className="grid grid-cols-3 gap-4 mb-6">
+                  <div className="text-center">
+                    <Target className="mx-auto text-blue-600 mb-1" size={18} />
+                    <p className="text-xs text-gray-600">Goal</p>
+                    <p className="font-semibold">{formatCurrency(fundraiser.goal)}</p>
+                  </div>
+                  <div className="text-center">
+                    <TrendingUp className="mx-auto text-green-600 mb-1" size={18} />
+                    <p className="text-xs text-gray-600">Raised</p>
+                    <p className="font-semibold">{formatCurrency(fundraiser.raised)}</p>
+                  </div>
+                  <div className="text-center">
+                    <Users className="mx-auto text-purple-600 mb-1" size={18} />
+                    <p className="text-xs text-gray-600">Donors</p>
+                    <p className="font-semibold">{fundraiser.donors}</p>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex gap-2">
+                  <button className="flex-1 btn-primary py-2">
+                    Donate Now
+                  </button>
+                  <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                    <Share2 size={18} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          )
+        })}
       </div>
+
+      {/* Empty State */}
+      {fundraisers.length === 0 && (
+        <div className="text-center py-16">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gray-100 mb-4">
+            <Heart className="h-10 w-10 text-gray-400" />
+          </div>
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">No fundraisers yet</h3>
+          <p className="text-gray-600 max-w-md mx-auto mb-6">
+            Create your first fundraiser to honor the memory of your loved ones and make a positive impact.
+          </p>
+          <button
+            onClick={() => setShowCreateForm(true)}
+            className="btn-primary inline-flex items-center gap-2"
+          >
+            <Plus size={20} />
+            Create First Fundraiser
+          </button>
+        </div>
+      )}
     </div>
   )
 }

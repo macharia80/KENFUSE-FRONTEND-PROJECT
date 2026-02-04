@@ -1,78 +1,72 @@
-// src/App.tsx
+import React from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import './index.css'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
-// Public pages
-import Home from './pages/Home'
-import Login from './pages/Login'
-import CreateAccount from './pages/CreateAccount'
-import Contact from './pages/Contact'
-import Fundraiser from './pages/Fundraiser'
-import WillCreation from './pages/WillCreation'
-
-// Dashboard pages
+// Layout and pages
+import Layout from './components/Layout'
 import Dashboard from './pages/Dashboard'
+import Memorials from './pages/Memorials'
+import Wills from './pages/Wills'
+import Beneficiaries from './pages/Beneficiaries'
+import Login from './pages/Login'
+import Register from './pages/Register'
+import Settings from './pages/Settings'
 import Profile from './pages/Profile'
+import WillCreation from './pages/WillCreation'
+import Fundraiser from './pages/Fundraiser'
 
-// Layout
-import DashboardLayout from './components/DashboardLayout'
+// Protected route component
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const isAuthenticated = localStorage.getItem('kenfuse_token')
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />
+  }
+  
+  return <>{children}</>
+}
 
 function App() {
   return (
     <Router>
       <Routes>
         {/* Public routes */}
-        <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/create-account" element={<CreateAccount />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/fundraiser" element={<Fundraiser />} />
-        <Route path="/will" element={<WillCreation />} />
+        <Route path="/register" element={<Register />} />
         
-        {/* Dashboard routes - with layout wrapper */}
-        <Route path="/dashboard" element={
-          <DashboardLayout>
-            <Dashboard />
-          </DashboardLayout>
-        } />
+        {/* Protected routes */}
+        <Route path="/" element={
+          <ProtectedRoute>
+            <Layout />
+          </ProtectedRoute>
+        }>
+          <Route index element={<Dashboard />} />
+          <Route path="memorials" element={<Memorials />} />
+          <Route path="wills" element={<Wills />} />
+          <Route path="beneficiaries" element={<Beneficiaries />} />
+          <Route path="settings" element={<Settings />} />
+          <Route path="profile" element={<Profile />} />
+          <Route path="create-will" element={<WillCreation />} />
+          <Route path="fundraiser" element={<Fundraiser />} />
+        </Route>
         
-        <Route path="/profile" element={
-          <DashboardLayout>
-            <Profile />
-          </DashboardLayout>
-        } />
-        
-        {/* Dashboard routes without components - simple placeholders */}
-        <Route path="/memorials" element={
-          <DashboardLayout>
-            <div className="p-8">
-              <h1 className="text-3xl font-bold text-gray-900 mb-6">Memorials</h1>
-              <p className="text-gray-600">Memorial management page coming soon...</p>
-            </div>
-          </DashboardLayout>
-        } />
-        
-        <Route path="/marketplace" element={
-          <DashboardLayout>
-            <div className="p-8">
-              <h1 className="text-3xl font-bold text-gray-900 mb-6">Marketplace</h1>
-              <p className="text-gray-600">Vendor marketplace page coming soon...</p>
-            </div>
-          </DashboardLayout>
-        } />
-        
-        <Route path="/messages" element={
-          <DashboardLayout>
-            <div className="p-8">
-              <h1 className="text-3xl font-bold text-gray-900 mb-6">Messages</h1>
-              <p className="text-gray-600">Messages page coming soon...</p>
-            </div>
-          </DashboardLayout>
-        } />
-        
-        {/* Catch-all route */}
+        {/* Redirect unknown routes */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      
+      <ToastContainer 
+        position="bottom-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </Router>
   )
 }
